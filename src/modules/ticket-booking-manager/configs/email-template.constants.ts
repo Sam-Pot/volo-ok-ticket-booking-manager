@@ -1,0 +1,5 @@
+export class EmailTemplate{
+    public static readonly SUBJECT = "VOLO OK BIGLIETTO AEREO";
+    public static readonly TEXT = "Biglietto aereo";
+    public static readonly HTML = '<html> <div> <tablestyle="margin:auto;"> <tr> <td> <h1style="color:dodgerblue;">VoloOK</h1> </td> </tr> <tr> <td> <h3>Airticket</h3> </td> </tr> <tr> <td> <h4>Id:{ID}</h4> </td> </tr> <tr> <td> <spanstyle="color:dodgerblue;"> Flight#:{FLIGHT} </span> </td> <td> <spanstyle="color:dodgerblue;"> Fare:{FARE} </span> </td> </tr> <tr> <td> <spanstyle="color:dodgerblue;"> From:{FROM} </span> </td> </tr> <tr> <td> <spanstyle="color:dodgerblue;"> To:{TO} </span> </td> </tr> <tr> <td> <spanstyle="color:dodgerblue;"> Departure:{DEPARTURE} </span> </td> </tr> <tr> <td> <spanstyle="color:dodgerblue;"> Passenger:{PASSENGER} </span> </td> </tr> </table> </div> </html>'
+}
