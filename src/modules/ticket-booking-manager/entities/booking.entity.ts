@@ -1,4 +1,4 @@
-import { IsBoolean, IsDate, IsDefined, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsDefined, IsOptional, IsString } from "class-validator";
 import { CustomBaseEntity } from "src/shared-modules/database/entities/custom-base.entity";
 import { Column, Entity, Index, OneToMany } from "typeorm";
 import { BookingState } from "../configs/booking-state";
@@ -10,12 +10,14 @@ export class Booking extends CustomBaseEntity {
     @Column()
     @Index()
     @IsDefined()
-    state!: BookingState;
+    @IsOptional()
+    state?: BookingState;
 
     @Column()
     @Index()
     @IsDate()
-    expirationDate!: Date;
+    @IsOptional()
+    expirationDate?: Date;
 
     @Column()
     @IsString()

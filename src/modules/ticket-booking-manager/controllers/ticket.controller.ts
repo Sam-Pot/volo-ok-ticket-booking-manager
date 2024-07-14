@@ -8,6 +8,7 @@ import { PaginateQueryDto } from "src/shared-modules/dtos/paginate-query.dto";
 import { Paginated } from "nestjs-paginate";
 import { PaginatedTickets } from "../dtos/paginated-tickets.dto";
 import { EmailDto } from "../dtos/email.dto";
+import { CountDto } from "../dtos/count.dto";
 
 
 @Controller()
@@ -63,5 +64,14 @@ export class TicketController {
             throw new RpcException("GENERATE TICKET FAILED");
         }
         return emailTemplate;
+    }
+
+    @GrpcMethod("TicketService", "countTickets")
+    async countTickets(countDto: CountDto, metadata: Metadata, call: ServerUnaryCall<CountDto, number>): Promise<number> {
+        let counter: number | undefined = await this.ticketService.countTickets(countDto.flightId, countDto.departureDate);
+        if (!counter) {
+            throw new RpcException("COUNT TICKET FAILED");
+        }
+        return counter;
     }
 }

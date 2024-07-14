@@ -11,6 +11,7 @@ import { EmailTemplate } from "../configs/email-template.constants";
 
 @Injectable()
 export class TicketService {
+
     constructor(
         @InjectRepository(TicketRepository)
         private readonly ticketRepository: TicketRepository,
@@ -130,37 +131,23 @@ export class TicketService {
             subject: EmailTemplate.SUBJECT,
             text: EmailTemplate.TEXT,
             html: EmailTemplate.HTML
-            .replace("{ID}",ticket.id!)
-            .replace("{FLIGHT}",ticket.flightId)
-            .replace("{FARE}",ticket.fareId)
-            .replace("{FROM}",ticket.from)
-            .replace("{TO}",ticket.to)
-            .replace("{DEPARTURE}",new Date(ticket.flightDate).toDateString())
-            .replace("{PASSENGER}",ticket.passengerName+" "+ticket.passengerSurname)
+                .replace("{ID}", ticket.id!)
+                .replace("{FLIGHT}", ticket.flightId)
+                .replace("{FARE}", ticket.fareId)
+                .replace("{FROM}", ticket.from)
+                .replace("{TO}", ticket.to)
+                .replace("{DEPARTURE}", new Date(ticket.flightDate).toDateString())
+                .replace("{PASSENGER}", ticket.passengerName + " " + ticket.passengerSurname)
         };
         return emailTemplate;
     }
-/*
-    async getStatistics(ticketDto: TicketDto): Promise<Paginated<FidelityStatistics> | undefined> {
-        if(!ticketDto || !ticketDto.userId){
+
+    async countTickets(flightId: string, departureDate: number): Promise<number | undefined> {
+        try {
+            let counter = this.ticketRepository.countBy({ flightId: flightId, flightDate: departureDate });
+            return counter;
+        }catch(e){
             return undefined;
         }
-        let tickets: Ticket[] = await this.ticketRepository.find({
-            where:{
-                userId: ticketDto.userId,
-                state: TicketState.PURCHASED
-            },
-            select:{
-                from: true,
-                to: true,
-                flightDate: true,
-                generatedPoints: true,
-                usedPoints: true,
-                id: true,
-            },
-            order:{
-                flightDate: "ASC"
-            }
-        });
-    }*/
+    }
 }

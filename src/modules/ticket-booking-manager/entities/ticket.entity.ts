@@ -10,11 +10,13 @@ export class Ticket extends CustomBaseEntity {
 
     @Column()
     @IsString()
-    passengerName!: string;
+    @IsOptional()
+    passengerName?: string;
 
     @Column()
     @IsString()
-    passengerSurname!: string;
+    @IsOptional()
+    passengerSurname?: string;
 
     @Column()
     @IsString()
@@ -23,7 +25,8 @@ export class Ticket extends CustomBaseEntity {
     @Column()
     @IsString()
     @Index()
-    customerCode!: string;
+    @IsOptional()
+    customerCode?: string;
 
     @Column()
     @IsNumber()
@@ -32,11 +35,13 @@ export class Ticket extends CustomBaseEntity {
     @Column()
     @IsNumber()
     @Index()
-    generatedPoints!: number;
+    @IsOptional()
+    generatedPoints?: number;
 
     @Column()
     @IsNumber()
-    usedPoints!: number;
+    @IsOptional()
+    usedPoints?: number;
 
     @Column()
     @IsString()
