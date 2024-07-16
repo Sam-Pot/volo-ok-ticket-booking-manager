@@ -28,10 +28,14 @@ export class TicketService {
                 return undefined;
             }
             //IT'S POSSIBLE TO UPDATE ONLY DATE
-            ticketToSave.flightDate = ticket.flightDate;
+            ticketToSave.flightDate = new Date(ticket.flightDate);
         } else {
             ticketToSave = ticket;
         }
+        ticketToSave.customerCode = ticket.customerCode ? ticket.customerCode : "";
+        ticketToSave.generatedPoints = ticket.generatedPoints ? ticket.generatedPoints : 0;
+        ticketToSave.usedPoints = ticket.usedPoints ? ticket.usedPoints : 0;
+        ticketToSave.flightDate = ticket.flightDate ? new Date(ticket.flightDate) : new Date();
         try {
             return await this.ticketRepository.save(ticketToSave);
         } catch (e) {
@@ -39,7 +43,8 @@ export class TicketService {
         }
     }
 
-    async find(@Paginate() query: PaginateQuery): Promise<Paginated<Ticket> | undefined> {
+    async find(query: PaginateQuery): Promise<Paginated<Ticket> | undefined> {
+        query = { path: "localhost:80" };
         try {
             return await paginate(query, this.ticketRepository, {
                 sortableColumns: [
@@ -144,9 +149,9 @@ export class TicketService {
 
     async countTickets(flightId: string, departureDate: number): Promise<number | undefined> {
         try {
-            let counter = this.ticketRepository.countBy({ flightId: flightId, flightDate: departureDate });
+            let counter = await this.ticketRepository.countBy({ flightId: flightId, flightDate: new Date(departureDate) });
             return counter;
-        }catch(e){
+        } catch (e) {
             return undefined;
         }
     }

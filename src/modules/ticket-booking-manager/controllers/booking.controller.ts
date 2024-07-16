@@ -5,7 +5,7 @@ import { Metadata, ServerUnaryCall } from "@grpc/grpc-js";
 import { Booking } from "../entities/booking.entity";
 import { GrpcMethod, RpcException } from "@nestjs/microservices";
 import { PaginatedBookings } from "../dtos/paginated-bookings.dto";
-import { Paginated } from "nestjs-paginate";
+import { Paginated, PaginateQuery } from "nestjs-paginate";
 import { BookingService } from "../services/booking.service";
 
 @Controller()
@@ -16,7 +16,7 @@ export class BookingController {
     ) { }
 
     @GrpcMethod("BookingService", "saveOrUpdate")
-    async saveOrUpdate(booking: Booking, metadata: Metadata, call: ServerUnaryCall<Booking, Booking>): Promise<Booking> {
+    async saveOrUpdate(booking: any, metadata: Metadata, call: ServerUnaryCall<Booking, Booking>): Promise<Booking> {
         let bookingSaved: Booking | undefined = await this.bookingService.saveOrUpdate(booking);
         if (!bookingSaved) {
             throw new RpcException("SAVE OR UPDATE FAILED");
@@ -35,7 +35,8 @@ export class BookingController {
 
     @GrpcMethod("BookingService", "find")
     async find(queryDto: PaginateQueryDto, metadata: Metadata, call: ServerUnaryCall<PaginateQueryDto, PaginatedBookings>): Promise<PaginatedBookings> {
-        let bookings: Paginated<Booking> | undefined = await this.bookingService.find(queryDto.query as any);
+        let query : PaginateQuery= { path: "http://localhost:80" };//queryDto.query 
+        let bookings: Paginated<Booking> | undefined = await this.bookingService.find(query);
         if (!bookings) {
             throw new RpcException("FIND FAILED");
         }

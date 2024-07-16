@@ -24,6 +24,6 @@ export class Booking extends CustomBaseEntity {
     userId!: string;
 
     @IsDefined({ each: true })
-    @OneToMany((type) => Ticket, (ticket) => ticket.bookingId, { eager: true, cascade: true })
+    @OneToMany((type) => Ticket, (ticket) => ticket.bookingId, { eager: true, cascade:true})
     tickets!: Ticket[];
 }

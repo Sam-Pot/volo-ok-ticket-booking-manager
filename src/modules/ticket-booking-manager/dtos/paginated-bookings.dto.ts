@@ -8,5 +8,5 @@ export class PaginatedBookings {
     elementsNumber?: number;
 
     @IsDefined({ each: true })
-    bookings!: Booking[]
+    bookings!: any[]
 }

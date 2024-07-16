@@ -4,6 +4,8 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 import { initializeTransactionalContext } from 'typeorm-transactional';
+import { number } from 'joi';
+import { Http2gRPCExceptionFilter } from './shared-modules/filters/http-exception-filter';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -12,6 +14,9 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
+        loader: {
+          longs: Number,
+        },
         url: process.env.MS_URL!,
         package: process.env.MS_PROTO_PACKAGE!,
         protoPath: join(__dirname,'modules',"ticket-booking-manager",'protos','TicketBooking.proto'),
@@ -22,10 +27,11 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(
     {
       whitelist: true,
-      forbidNonWhitelisted: true,
+      //forbidNonWhitelisted: true,
       transform: true,
     }
   ));
+  app.useGlobalFilters(new Http2gRPCExceptionFilter())
 
   await app.listen();
 }

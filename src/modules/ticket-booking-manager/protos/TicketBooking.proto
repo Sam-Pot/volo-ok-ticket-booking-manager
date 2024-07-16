@@ -84,11 +84,9 @@ message EmailDto {
   string html = 4;
 }
 
-message CountDto{
+message CountDto {
   string flightId = 1;
   uint64 departureDate = 2;
 }
 
-message TicketsNumber{
-  uint32 numberOfTickets = 1;
-}
+message TicketsNumber { uint32 numberOfTickets = 1; }

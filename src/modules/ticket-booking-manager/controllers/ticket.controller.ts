@@ -5,10 +5,11 @@ import { Metadata, ServerUnaryCall } from "@grpc/grpc-js";
 import { Ticket } from "../entities/ticket.entity";
 import { TicketDto } from "../dtos/ticket.dto";
 import { PaginateQueryDto } from "src/shared-modules/dtos/paginate-query.dto";
-import { Paginated } from "nestjs-paginate";
+import { Paginated, PaginateQuery } from "nestjs-paginate";
 import { PaginatedTickets } from "../dtos/paginated-tickets.dto";
 import { EmailDto } from "../dtos/email.dto";
 import { CountDto } from "../dtos/count.dto";
+import { TicketsNumber } from "../dtos/tickets-number.dto";
 
 
 @Controller()
@@ -18,7 +19,7 @@ export class TicketController {
     ) { }
 
     @GrpcMethod("TicketService", "saveOrUpdate")
-    async saveOrUpdate(ticket: Ticket, metadata: Metadata, call: ServerUnaryCall<Ticket, Ticket>): Promise<Ticket> {
+    async saveOrUpdate(ticket: any, metadata: Metadata, call: ServerUnaryCall<Ticket, Ticket>): Promise<Ticket> {
         let ticketSaved: Ticket | undefined = await this.ticketService.saveOrUpdate(ticket);
         if (!ticketSaved) {
             throw new RpcException("SAVE OR UPDATE FAILED");
@@ -37,7 +38,8 @@ export class TicketController {
 
     @GrpcMethod("TicketService", "find")
     async find(queryDto: PaginateQueryDto, metadata: Metadata, call: ServerUnaryCall<PaginateQueryDto, PaginatedTickets>): Promise<PaginatedTickets> {
-        let tickets: Paginated<Ticket> | undefined = await this.ticketService.find(queryDto.query as any);
+        let query : PaginateQuery= { path: "localhost:80" };//queryDto.query 
+        let tickets: Paginated<Ticket> | undefined = await this.ticketService.find(query);
         if (!tickets) {
             throw new RpcException("FIND FAILED");
         }
@@ -67,11 +69,13 @@ export class TicketController {
     }
 
     @GrpcMethod("TicketService", "countTickets")
-    async countTickets(countDto: CountDto, metadata: Metadata, call: ServerUnaryCall<CountDto, number>): Promise<number> {
+    async countTickets(countDto: CountDto, metadata: Metadata, call: ServerUnaryCall<CountDto, TicketsNumber>): Promise<TicketsNumber> {
         let counter: number | undefined = await this.ticketService.countTickets(countDto.flightId, countDto.departureDate);
-        if (!counter) {
+        if(counter!>=0){
+            let response: TicketsNumber = {ticketsNumber: counter!};
+            return response;
+        }else{
             throw new RpcException("COUNT TICKET FAILED");
         }
-        return counter;
     }
 }

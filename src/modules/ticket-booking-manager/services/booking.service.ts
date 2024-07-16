@@ -2,13 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { BookingRepository } from "../repositories/booking.repository";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Booking } from "../entities/booking.entity";
-import { TicketRepository } from "../repositories/ticket.repository";
 import { Transactional } from "typeorm-transactional";
 import { BookingState } from "../configs/booking-state";
 import { TicketState } from "../configs/ticket-state";
 import { paginate, Paginate, Paginated, PaginateQuery } from "nestjs-paginate";
 import { BookingDto } from "../dtos/booking.dto";
 import { DeleteResult } from "typeorm";
+import { TicketRepository } from "../repositories/ticket.repository";
 
 @Injectable()
 export class BookingService {
@@ -19,6 +19,8 @@ export class BookingService {
     constructor(
         @InjectRepository(BookingRepository)
         private readonly bookingRepository: BookingRepository,
+        @InjectRepository(TicketRepository)
+        private readonly ticketRepository: TicketRepository,
     ) { }
 
     @Transactional()
@@ -36,6 +38,14 @@ export class BookingService {
             }
             bookingToSave.state = booking.state;
             bookingToSave.tickets = booking.tickets;
+            for (let t of bookingToSave.tickets) {
+                t.customerCode = t.customerCode?t.customerCode: "";
+                t.generatedPoints = t.generatedPoints?t.generatedPoints: 0;
+                t.usedPoints = t.usedPoints?t.usedPoints: 0;
+                t.flightDate =new Date(t.flightDate);
+                t.userId = bookingToSave.userId;
+                await this.ticketRepository.save(t);
+            }
         } else {
             //SAVE CASE
             bookingToSave = booking;
@@ -43,11 +53,23 @@ export class BookingService {
             for (let ticket of bookingToSave.tickets) {
                 ticket.state = TicketState.BOOKED;
             }
+            for (let t of bookingToSave.tickets) {
+                t.customerCode = t.customerCode?t.customerCode: "";
+                t.generatedPoints = t.generatedPoints?t.generatedPoints: 0;
+                t.usedPoints = t.usedPoints?t.usedPoints: 0;
+                t.flightDate = new Date(t.flightDate);
+                t.userId = bookingToSave.userId;
+                await this.ticketRepository.save(t);
+            }
         }
         //SET EXPIRING DATE
         let flightDates: number[] = [];
         for (let ticket of booking.tickets) {
-            flightDates.push(ticket.flightDate);
+            ticket.customerCode = ticket.customerCode ? ticket.customerCode : "";
+            ticket.usedPoints = ticket.usedPoints ? ticket.usedPoints : 0;
+            ticket.userId = booking.userId;
+            flightDates.push(new Date(ticket.flightDate).getTime());
+            ticket.flightDate = new Date(ticket.flightDate);
         }
         let nearestFlightDate: Date = new Date(Math.min(...flightDates) - this.BOOKING_EXPIRE_DAYS_MILLIS);
         bookingToSave.expirationDate = nearestFlightDate;
@@ -58,7 +80,7 @@ export class BookingService {
         }
     }
 
-    async find(@Paginate() query: PaginateQuery): Promise<Paginated<Booking> | undefined> {
+    async find(query: PaginateQuery): Promise<Paginated<Booking> | undefined> {
         try {
             return await paginate(query, this.bookingRepository, {
                 sortableColumns: [
@@ -78,10 +100,11 @@ export class BookingService {
                     'tickets': true
                 },
                 searchableColumns: ["createdAt", "updatedAt", "id", "state", "expirationDate", "userId", "tickets"],
-                select: ["createdAt", "updatedAt", "id", "state", "expirationDate", "userId", "tickets"],
+                select: ["createdAt", "updatedAt", "id", "state", "expirationDate", "userId"],
                 defaultSortBy: [['id', 'ASC']],
             });
         } catch (e) {
+            console.log(e);
             return undefined;
         }
     }
@@ -103,22 +126,33 @@ export class BookingService {
     }
 
     @Transactional()
-    async delete(bookingDto: BookingDto): Promise<Booking | undefined>{
-        try{
+    async delete(bookingDto: BookingDto): Promise<Booking | undefined> {
+        try {
             let bookingToDelete: Booking | null = await this.bookingRepository.findOneBy(
                 {
-                    id:bookingDto.bookingId,
-                    userId:bookingDto.userId
+                    id: bookingDto.bookingId,
+                    userId: bookingDto.userId
                 }
             );
-            if(!bookingToDelete){
+            if (!bookingToDelete) {
                 return undefined;
             }
-            let deleted: DeleteResult = await this.bookingRepository.delete(bookingToDelete);
-            return bookingToDelete;
-        }catch(e){
+            /*for(let ticket of bookingToDelete.tickets){
+                let t =await this.ticketRepository.delete(ticket);
+                console.log(t);
+            }
+            bookingToDelete = await this.bookingRepository.findOneBy(
+                {
+                    id: bookingDto.bookingId,
+                    userId: bookingDto.userId
+                }
+            );
+            console.log(bookingToDelete);*/
+            await this.bookingRepository.delete(bookingToDelete!);
+            return bookingToDelete!;
+        } catch (e) {
             return undefined;
         }
     }
-    
+
 }
