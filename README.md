@@ -19,29 +19,10 @@ The following params must be specified in the .env file:
 #### Database
 It provides a default configuration for a mySQL database access with TypeORM (but can be changed from database.module.ts). 
 Each module, that needs to access to the database, can import DatabaseModule by specifying its own entities in the respective "Module" declaration. The module automatically loads all the modules/'modulename'/entities/*.entity.ts entities. 
-The module that needs to import the database module can specify the following in the respective Module imports declaration:
-```javascript
-DatabaseModule,
-TypeOrmModule.forFeature([Entity1, Entity2]),
-```
-Each entity can extends the provided CustomBaseEntity, which contains some used columns (like id (generated with uuid), createdAt, updatedAt, version).
-Each new service can use the pagination provided by [@nestjs-paginate](https://www.npmjs.com/package/nestjs-paginate):
-```javascript
-public findAll(query: PaginateQuery): Promise<Paginated<CatEntity>> {
-    return paginate(query, this.catsRepository, {
-      sortableColumns: ['id', 'name', 'color', 'age'],
-      nullSort: 'last',
-      defaultSortBy: [['id', 'DESC']],
-      searchableColumns: ['name', 'color', 'age'],
-      select: ['id', 'name', 'color', 'age', 'lastVetVisit'],
-      filterableColumns: {
-        name: [FilterOperator.EQ, FilterSuffix.NOT],
-        age: true,
-      },
-    })
-  }
-```
-The following params must be specified in the .env file:
+
+1. Install MySQL and create a new schema named volook_ticket_booking_manager.
+2. The following params must be specified in the .env file:
+
 * DB_HOST: is the database host ip;
 * DB_PORT: is the database port;
 * DB_USERNAME: is the username used for database auth;
@@ -83,7 +64,7 @@ $ npm run test:cov
 
 ## Stay in touch
 
-- Author - [Salvatore Potrino](https://www.linkedin.com/in/salvatore-potrino-a32626255?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
+- Author - [Salvatore Potrino (https://www.linkedin.com/in/salvatore-potrino-a32626255?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
 
 ## License
 
