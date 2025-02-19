@@ -35,15 +35,19 @@ export class BookingController {
 
     @GrpcMethod("BookingService", "find")
     async find(queryDto: PaginateQueryDto, metadata: Metadata, call: ServerUnaryCall<PaginateQueryDto, PaginatedBookings>): Promise<PaginatedBookings> {
-        let query : PaginateQuery= { path: "http://localhost:80" };//queryDto.query 
-        let bookings: Paginated<Booking> | undefined = await this.bookingService.find(query);
+        //let query : PaginateQuery= { path: "http://localhost:80" };//queryDto.query 
+        //let bookings: Paginated<Booking> | undefined = await this.bookingService.find(query);
+        let bookings: Booking[] | undefined = await this.bookingService.findAll();
         if (!bookings) {
             throw new RpcException("FIND FAILED");
         }
         let response: PaginatedBookings = {
-            elementsNumber: bookings.meta.totalItems,
-            bookings: bookings.data
+            elementsNumber: bookings.length,
+            bookings: bookings
         };
+        for(let booking of response.bookings){
+            booking.expirationDate = booking.expirationDate?.getTime();
+        }
         return response;
     }
 

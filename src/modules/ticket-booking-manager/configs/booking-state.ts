@@ -1,5 +1,5 @@
 export enum BookingState {
-    OPEN,
-    CONFIRMED,
-    EXPIRED
+    OPEN=1,
+    CONFIRMED=2,
+    EXPIRED=3
 }

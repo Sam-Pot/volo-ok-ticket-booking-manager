@@ -57,7 +57,7 @@ export class Ticket extends CustomBaseEntity {
     @IsOptional()
     @IsString()
     @ManyToOne(() => Booking, (booking) => booking.tickets, { nullable: true, onDelete:'CASCADE', onUpdate:'CASCADE' })
-    bookingId?: string;
+    bookingId?: Booking;
 
     @Column()
     @IsOptional()

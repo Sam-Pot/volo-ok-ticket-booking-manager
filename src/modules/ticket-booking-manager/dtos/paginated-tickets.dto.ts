@@ -8,5 +8,5 @@ export class PaginatedTickets {
     elementsNumber?: number;
 
     @IsDefined({ each: true })
-    tickets!: Ticket[]
+    tickets!: any[]
 }

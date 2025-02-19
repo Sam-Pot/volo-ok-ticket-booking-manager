@@ -1,4 +1,4 @@
 export enum TicketState {
-    BOOKED,
-    PURCHASED
+    BOOKED = 1,
+    PURCHASED = 2
 }

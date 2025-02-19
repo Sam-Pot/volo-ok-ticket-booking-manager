@@ -29,6 +29,7 @@ export class TicketService {
             }
             //IT'S POSSIBLE TO UPDATE ONLY DATE
             ticketToSave.flightDate = new Date(ticket.flightDate);
+            ticketToSave.state = ticket.state
         } else {
             ticketToSave = ticket;
         }
@@ -39,6 +40,7 @@ export class TicketService {
         try {
             return await this.ticketRepository.save(ticketToSave);
         } catch (e) {
+            console.log(e);
             return undefined;
         }
     }
@@ -78,7 +80,7 @@ export class TicketService {
                     'usedPoints', 'flightId', 'flightDate', 'bookingId', 'userId'],
                 select: ['id', 'updatedAt', 'createdAt', 'state', 'passengerName',
                     'passengerSurname', 'fareId', 'customerCode', 'price', 'generatedPoints',
-                    'usedPoints', 'flightId', 'flightDate', 'bookingId', 'userId'],
+                    'usedPoints', 'flightId', 'flightDate', 'bookingId.id', 'userId', 'from', 'to'],
                 defaultSortBy: [['id', 'ASC']],
             });
         } catch (e) {
@@ -86,12 +88,21 @@ export class TicketService {
         }
     }
 
+    async findAllByUser(userId:string): Promise<Ticket[] | undefined>{
+        try{
+            let tickets: Ticket[] = await this.ticketRepository.find({where:{userId: userId}, loadRelationIds:true});
+            return tickets;
+        }catch(e){
+            return undefined;
+        }
+    
+    }
+
     async findOne(ticketDto: TicketDto): Promise<Ticket | undefined> {
         try {
             let response: Ticket | null = await this.ticketRepository.findOneBy(
                 {
                     id: ticketDto.ticketId,
-                    userId: ticketDto.userId
                 });
             if (!response) {
                 return undefined;

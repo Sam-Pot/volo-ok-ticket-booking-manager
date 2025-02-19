@@ -38,14 +38,14 @@ export class BookingService {
             }
             bookingToSave.state = booking.state;
             bookingToSave.tickets = booking.tickets;
-            for (let t of bookingToSave.tickets) {
+            /*for (let t of bookingToSave.tickets) {
                 t.customerCode = t.customerCode?t.customerCode: "";
                 t.generatedPoints = t.generatedPoints?t.generatedPoints: 0;
                 t.usedPoints = t.usedPoints?t.usedPoints: 0;
                 t.flightDate =new Date(t.flightDate);
                 t.userId = bookingToSave.userId;
                 await this.ticketRepository.save(t);
-            }
+            }*/
         } else {
             //SAVE CASE
             bookingToSave = booking;
@@ -53,14 +53,14 @@ export class BookingService {
             for (let ticket of bookingToSave.tickets) {
                 ticket.state = TicketState.BOOKED;
             }
-            for (let t of bookingToSave.tickets) {
+            /*for (let t of bookingToSave.tickets) {
                 t.customerCode = t.customerCode?t.customerCode: "";
                 t.generatedPoints = t.generatedPoints?t.generatedPoints: 0;
                 t.usedPoints = t.usedPoints?t.usedPoints: 0;
                 t.flightDate = new Date(t.flightDate);
                 t.userId = bookingToSave.userId;
                 await this.ticketRepository.save(t);
-            }
+            }*/
         }
         //SET EXPIRING DATE
         let flightDates: number[] = [];
@@ -76,6 +76,15 @@ export class BookingService {
         try {
             return await this.bookingRepository.save(bookingToSave);
         } catch (e) {
+            return undefined;
+        }
+    }
+
+    async findAll(): Promise<Booking[] | undefined>{
+        try{
+            let bookings: Booking[] | null = await this.bookingRepository.find();
+            return bookings;
+        }catch(e){
             return undefined;
         }
     }
@@ -148,9 +157,10 @@ export class BookingService {
                 }
             );
             console.log(bookingToDelete);*/
-            await this.bookingRepository.delete(bookingToDelete!);
-            return bookingToDelete!;
+            await this.bookingRepository.delete({id: bookingToDelete.id});
+            return bookingToDelete;
         } catch (e) {
+            console.log(e);
             return undefined;
         }
     }
